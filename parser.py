@@ -27,9 +27,10 @@ def parse():
 
 def decode(token):
     try:
-        byte_data = bytes.fromhex(token)
-        print(byte_data)
-    except ValueError as e:
+        byte_data = bytes.fromhex(token).replace(b'\x00', b'')
+        human_output = str(byte_data).replace('b', '')
+        print(human_output)
+    except Exception as e:
         print(e)
 
 if __name__ == "__main__":
