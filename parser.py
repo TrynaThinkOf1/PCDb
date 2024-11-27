@@ -1,9 +1,12 @@
 tokens = []
 final_token = ""
 
-def parse():
+def parse(file):
     global tokens, final_token
-    with open("DATABASES/base1.css", 'r') as css:
+    tokens.clear()
+    final_token = ""
+
+    with open(f"DATABASES/{file}.css", 'r') as css:
         lines = css.readlines()
         comment = False
 
@@ -14,19 +17,18 @@ def parse():
                 comment = True
             if not comment:
                 if stripped_line.startswith("color: #"):
-                    stripped_line = stripped_line.removeprefix("color: #")
-                    stripped_line = stripped_line.removesuffix(";")
-                    tokens.append(stripped_line)
+                    stripped_line = stripped_line.removeprefix("color: #").removesuffix(";")
+                    if all(c in '0123456789abcdefABCDEF' for c in stripped_line) and len(stripped_line) == 6:
+                        tokens.append(stripped_line)
             if stripped_line.endswith("*/"):
                 comment = False
 
-        for token in tokens:
-            final_token += token
-
+        final_token = ''.join(tokens)
         return final_token
 
 def decode(token):
     try:
+        print("Final token: " + final_token)
         byte_data = bytes.fromhex(token).replace(b'\x00', b'')
         human_output = str(byte_data).replace('b', '')
         print(human_output)
@@ -34,4 +36,4 @@ def decode(token):
         print(e)
 
 if __name__ == "__main__":
-    decode(parse())
+    decode(parse(input("Enter file name: ")))
