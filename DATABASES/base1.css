@@ -1,0 +1,19 @@
+.string {
+  color: #546869;
+  color: #732069;
+  color: #732061;
+  color: #6e2065;
+  color: #78616d;
+  color: #706c65;
+  color: #2c2037;
+}
+
+.integer {
+  color: #330000;
+}
+
+/* this would parse into a large decimal
+"5468697320697320616e206578616d706c652c203733", turns into the string "This is an example, 73" */
+
+/* the script separates the string from any numbers,
+'20' represents a space, '0' represents white-space */
