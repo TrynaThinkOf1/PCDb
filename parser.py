@@ -2,6 +2,7 @@ import shutil as sh
 import os
 
 tokens = []
+final_token = ""
 
 with open("DATABASES/base1.css", 'r') as css:
     lines = css.readlines()
@@ -20,4 +21,7 @@ with open("DATABASES/base1.css", 'r') as css:
         if stripped_line.endswith("*/"):
             comment = False
 
-    print(tokens)
+    for token in tokens:
+        final_token += token
+
+    print(final_token)
