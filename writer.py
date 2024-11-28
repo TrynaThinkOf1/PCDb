@@ -1,25 +1,31 @@
-tokens = []
+hex_data = ""
 
-def convert(string):
-    global tokens
-    token = ""
+pairs = {}
 
-    byte_data = string.encode('utf-8')
+def pairify(key, value):
+    key = convert(key)
+    value = convert(value)
+
+    pairs[key] = value
+
+def convert(data):
+    global hex_data
+
+    byte_data = data.encode('utf-8')
     hex_data = byte_data.hex()
-    for i in range(0, len(hex_data), 6):
-        token = hex_data[i:i+6].ljust(6, '0')
-        tokens.append(token)
 
-    return tokens
+    return hex_data
 
 def write(file):
     with open(f"DATABASES/{file}.css", 'w') as css:
         css.write(".string {\n")
-        for token in tokens:
-            css.write(f"  color: #{token};\n")
+        for i, j in pairs.items():
+            css.write(f"  --key: #{i}; \n  --value: #{j};\n")
         css.write("}")
 
 if __name__ == "__main__":
     file_name = input("File to store data: ")
-    convert(input("Enter string: "))
+    length = int(input("Enter number of pairs: "))
+    for i in range(length):
+        pairify(input(f"Enter key: "), input(f"Enter value: "))
     write(file_name)

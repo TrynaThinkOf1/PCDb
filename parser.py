@@ -1,38 +1,59 @@
-tokens = []
-final_token = ""
+key_value_pairs = {}
+
 
 def parse(file):
-    global tokens, final_token
-    tokens.clear()
-    final_token = ""
+    global key_value_pairs
 
     with open(f"DATABASES/{file}.css", 'r') as css:
         lines = css.readlines()
         comment = False
 
+        current_key = ""
+        current_value = ""
+
         # parse
         for line in lines:
             stripped_line = line.strip()
+
             if stripped_line.startswith("/*"):
                 comment = True
             if not comment:
-                if stripped_line.startswith("color: #"):
-                    stripped_line = stripped_line.removeprefix("color: #").removesuffix(";")
-                    if all(c in '0123456789abcdefABCDEF' for c in stripped_line) and len(stripped_line) == 6:
-                        tokens.append(stripped_line)
+                if stripped_line.startswith("--key: #"):
+                    stripped_line = stripped_line.removeprefix("--key: #").removesuffix(";")
+                    current_key = stripped_line
+                elif stripped_line.startswith("--value: #"):
+                    stripped_line = stripped_line.removeprefix("--value: #").removesuffix(";")
+                    current_value = stripped_line
+                    if current_key:
+                        key_value_pairs[current_key] = current_value
+                        current_key = ""
+                        current_value = ""
+
             if stripped_line.endswith("*/"):
                 comment = False
 
-        final_token = ''.join(tokens)
-        return final_token
+        return key_value_pairs
 
-def decode(token):
+
+def decode(dictionary):
     try:
-        byte_data = bytes.fromhex(token).replace(b'\x00', b'')
-        human_output = str(byte_data).replace('b', '')
-        print(human_output)
+        if dictionary is None:
+            print("No data to decode.")
+            return
+
+        pairs = {}
+        for i, j in dictionary.items():
+            i = bytes.fromhex(i).replace(b'\x00', b'').decode('utf-8')
+            j = bytes.fromhex(j).replace(b'\x00', b'').decode('utf-8')
+            pairs[i] = j
+
+        return pairs
     except Exception as e:
         print(e)
 
+
 if __name__ == "__main__":
-    decode(parse(input("Enter file name: ")))
+    file_data = parse(input("Enter file name: "))
+    decoded_data = decode(file_data)
+    if decoded_data:
+        print("Decoded Data: ", decoded_data)
