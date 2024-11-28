@@ -1,0 +1,17 @@
+.key_value_pairs {
+  --key: #6b6579; 
+  --value: #76616c7565;
+  --key: #757365726e616d65; 
+  --value: #61646d696e;
+  --key: #70617373776f7264; 
+  --value: #61646d696e31323321;
+}
+.raw_data {
+  color: #746869;
+  color: #732069;
+  color: #732072;
+  color: #617720;
+  color: #646174;
+  color: #612c20;
+  color: #312100;
+}
