@@ -28,7 +28,6 @@ def parse(file):
 
 def decode(token):
     try:
-        print("Final token: " + final_token)
         byte_data = bytes.fromhex(token).replace(b'\x00', b'')
         human_output = str(byte_data).replace('b', '')
         print(human_output)

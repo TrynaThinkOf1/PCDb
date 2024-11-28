@@ -20,5 +20,6 @@ def write(file):
         css.write("}")
 
 if __name__ == "__main__":
+    file_name = input("File to store data: ")
     convert(input("Enter string: "))
-    write(input("Enter file name: "))
+    write(file_name)
