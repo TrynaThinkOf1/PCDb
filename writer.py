@@ -7,14 +7,67 @@ tokens = []
 meta_data = {}
 
 def mitochondria():
-    file_name = input("File to store data: ")
-    print("Meta-data is stored as un-hexed key-value pairs (D_NAME: Database name, D_VERSION: Database version, D_DC: Database data created, D_DESC: Database description)")
-    print("Example: D_NAME=username_data1; D_VERSION=1.2.3 (only ints and '.'); D_DC=11-29-2024; D_DESC=This is a database for storing usernames.")
-    meta_data = input("Meta data to store (return for None): ").split(";").strip()
-    print("All raw text will be stored, to store a key-value pair: {key:value}. Seperate key-value pairs from raw data with ;")
-    data = input("Data to store: ")
-    process(data)
-    write(file_name, meta_data=meta_data)
+    file_name = input("Enter the file name: ")
+    mode = input("Append (a), Remove (r), or Overwrite (o):")
+
+    if mode.lower() == "a":
+        pass
+    elif mode.lower() == "r":
+        remove(file_name, (input("Enter token to remove (press Enter to remove K-V pair): ") or None), (input("Enter key to remove (press Enter for None): ") or None))
+    elif mode.lower() == "o":
+        print("Meta-data should be entered as key-value pairs without hex encoding.")
+        print("Accepted meta-data includes: D_NAME (Database name), D_VERSION (Database version), D_DC (Date Created), D_DESC (Description)")
+        print("Example: D_NAME=login_data1; D_VERSION=1.2.3; D_DC=11-29-2024; D_DESC=This database stores usernames.")
+        meta_input = input("Enter metadata (or press Enter for None): ")
+        meta_data = [item.strip() for item in meta_input.split(";") if item.strip()]
+        print("Enter raw data or key-value pairs in the format {key:value}, separating multiple entries with ';'.")
+        data_input = input("Enter the data to store: ")
+        process(data_input)
+        write(file_name, meta_data)
+
+    else:
+        print("Invalid Mode")
+        return
+
+def remove(file, token=None, key=None):
+    with open(f"DATABASES/{file}.css", 'r') as css:
+        lines = css.readlines()
+
+    modified_lines = []
+    skip = False
+
+    tokens_to_remove = set()
+
+    if token:
+        tokens_to_remove.update(tokenize(token))
+
+    index = 0
+    while index < len(lines):
+        line = lines[index]
+        stripped_line = line.strip()
+
+        if tokens_to_remove:
+            if stripped_line.startswith("color: #") and stripped_line[8:14] in tokens_to_remove:
+                index += 1
+                continue
+
+        if key:
+            if stripped_line == f"--key: #{convert(key)};":
+                skip = True
+                index += 1
+                continue
+
+            if skip and stripped_line.startswith("--value: #"):
+                skip = False
+                index += 1
+                continue
+
+        modified_lines.append(line)
+        index += 1
+
+    with open(f"DATABASES/{file}.css", 'w') as css:
+        css.writelines(modified_lines)
+
 
 def pairify(key, value):
     key = convert(key)

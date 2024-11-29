@@ -5,12 +5,14 @@ def mitochondria():
     if mode == "p":
         mode = input("Key-Value Pairs (kvp) or Raw (raw) or both (both): ").lower()
         try:
+            print("-----------------------------------------------\n")
             print(parse(input_file, mode))
         except Exception as e:
             print(e)
     elif mode == "q":
         query = input("Query: ")
         try:
+            print("-----------------------------------------------\n")
             print(parse(input_file, query=query))
         except Exception as e:
             print(e)
