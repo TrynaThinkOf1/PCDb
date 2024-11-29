@@ -11,9 +11,8 @@ def pairify(key, value):
     pairs[key] = value
 
 
-def tokenizer(data):
-    byte_data = data.encode('utf-8')
-    hex_data = byte_data.hex()
+def tokenize(data):
+    hex_data = (data.encode('utf-8')).hex()
 
     for i in range(0, len(hex_data), 6):
         token = hex_data[i:i + 6].ljust(6, '0')
@@ -23,13 +22,12 @@ def tokenizer(data):
 
 
 def convert(data):
-    byte_data = data.encode('utf-8')
-    hex_data = byte_data.hex()
+    hex_data = (data.encode('utf-8')).hex()
 
     return hex_data
 
 
-def processor(data):
+def process(data):
     global pairs
     global tokens
 
@@ -47,7 +45,7 @@ def processor(data):
             part = part[end + 1:].strip()
 
         if part:
-            tokenizer(part)
+            tokenize(part)
 
 
 def write(file):
@@ -66,5 +64,5 @@ if __name__ == "__main__":
     file_name = input("File to store data: ")
     print("All raw text will be stored, to store a key-value pair: {key:value}. Seperate key-value pairs from raw data with ;")
     data = input("Data to store: ")
-    processor(data)
+    process(data)
     write(file_name)
