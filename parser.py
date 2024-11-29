@@ -70,7 +70,7 @@ def parse(file, mode="raw", query=None):
                             key = "Date Database was Created"
                         elif "DESC" in key:
                             key = "Database Description"
-                        meta_data[key] = value
+                        meta_data[key] = value.strip()
 
                 if kvp_mode:
                     if stripped_line.startswith("--key: #"):
@@ -103,13 +103,16 @@ def parse(file, mode="raw", query=None):
             return f"Key: {query} Not Found."
 
     if mode.lower() == "raw":
-        return f"Meta-Data: {meta_data}\nRaw-Data: {decode_raw_data(''.join(tokens))}"
+        return f"\n\nMeta-Data: {format(meta_data)}\n\nRaw-Data: \n{decode_raw_data(''.join(tokens))}"
     elif mode.lower() == "kvp":
-        return f"Meta-Data: {meta_data}\nK-V Pairs: {decode_key_value_pairs(key_value_pairs)}"
+        return f"\n\nMeta-Data: {format(meta_data)}\n\nK-V Pairs: \n{format(decode_key_value_pairs(key_value_pairs))}"
     elif mode.lower() == "both":
-        return f"Meta-Data: {meta_data}\nK-V Pairs: {decode_key_value_pairs(key_value_pairs)}\nRaw-Data: {decode_raw_data(''.join(tokens))}"
+        return f"\n\nMeta-Data: {format(meta_data)}\n\nK-V Pairs: \n{format(decode_key_value_pairs(key_value_pairs))}\n\nRaw-Data: \n{decode_raw_data(''.join(tokens))}"
     else:
         return "Invalid Mode"
+
+def format(data):
+    return '\n'.join([f"{key}: '{value}'" for key, value in data.items()])
 
 def decode_key_value_pairs(dictionary):
     try:
