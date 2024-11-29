@@ -4,6 +4,18 @@ pairs = {}
 
 tokens = []
 
+meta_data = {}
+
+def mitochondria():
+    file_name = input("File to store data: ")
+    print("Meta-data is stored as un-hexed key-value pairs (D_NAME: Database name, D_VERSION: Database version, D_DC: Database data created, D_DESC: Database description)")
+    print("Example: D_NAME=username_data1; D_VERSION=1.2.3 (only ints and '.'); D_DC=11-29-2024; D_DESC=This is a database for storing usernames.")
+    meta_data = input("Meta data to store (return for None): ").split(";").strip()
+    print("All raw text will be stored, to store a key-value pair: {key:value}. Seperate key-value pairs from raw data with ;")
+    data = input("Data to store: ")
+    process(data)
+    write(file_name, meta_data=meta_data)
+
 def pairify(key, value):
     key = convert(key)
     value = convert(value)
@@ -48,8 +60,14 @@ def process(data):
             tokenize(part)
 
 
-def write(file):
+def write(file, meta_data: str = None):
     with open(f"DATABASES/{file}.css", 'w') as css:
+        if meta_data is not None:
+            css.write(".META_DATA {\n")
+            meta_data = {k: v for k, v in (item.split("=") for item in meta_data if "=" in item)}
+            for k, v in meta_data.items():
+                css.write("  --" + k + ": " + v + ";\n")
+            css.write("}\n")
         css.write(".key_value_pairs {\n")
         for i, j in pairs.items():
             css.write(f"  --key: #{i}; \n  --value: #{j};\n")
@@ -61,8 +79,4 @@ def write(file):
 
 
 if __name__ == "__main__":
-    file_name = input("File to store data: ")
-    print("All raw text will be stored, to store a key-value pair: {key:value}. Seperate key-value pairs from raw data with ;")
-    data = input("Data to store: ")
-    process(data)
-    write(file_name)
+    mitochondria()

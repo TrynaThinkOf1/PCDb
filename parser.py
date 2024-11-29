@@ -1,5 +1,26 @@
+def mitochondria():
+    input_file = input("File to process: ").strip()
+    mode = input("Parse (p) or Query (q): ").lower()
+
+    if mode == "p":
+        mode = input("Key-Value Pairs (kvp) or Raw (raw) or both (both): ").lower()
+        try:
+            print(parse(input_file, mode))
+        except Exception as e:
+            print(e)
+    elif mode == "q":
+        query = input("Query: ")
+        try:
+            print(parse(input_file, query=query))
+        except Exception as e:
+            print(e)
+    else:
+        print("Invalid Mode")
+
 def parse(file, mode="raw", query=None):
     key_value_pairs = {}
+    meta_data = {}
+
     line_nums = {}
 
     tokens = []
@@ -9,6 +30,7 @@ def parse(file, mode="raw", query=None):
         comment = False
         kvp_mode = False
         raw_mode = False
+        meta = False
 
         current_key = ""
         current_value = ""
@@ -23,8 +45,10 @@ def parse(file, mode="raw", query=None):
             if stripped_line.endswith("*/"):
                 comment = False
 
-
             if not comment:
+                if stripped_line.startswith(".META_DATA {"):
+                    meta = True
+
                 if stripped_line.startswith(".key_value_pairs {"):
                     kvp_mode = True
                     raw_mode = False
@@ -32,6 +56,12 @@ def parse(file, mode="raw", query=None):
                 elif stripped_line.startswith(".raw_data {"):
                     kvp_mode = False
                     raw_mode = True
+
+                if meta:
+                    if stripped_line.startswith("--D"):
+                        stripped_line = stripped_line.removeprefix("--").removesuffix(";")
+                        key, value = stripped_line.split(":")
+                        meta_data[key.strip()] = value.strip()
 
                 if kvp_mode:
                     if stripped_line.startswith("--key: #"):
@@ -55,6 +85,7 @@ def parse(file, mode="raw", query=None):
                         if all(c in '0123456789abcdefABCDEF' for c in stripped_line) and len(stripped_line) == 6:
                             tokens.append(stripped_line)
 
+
     if query is not None:
         key_value_pairs = decode_key_value_pairs(key_value_pairs)
         if key_value_pairs.get(query):
@@ -63,11 +94,11 @@ def parse(file, mode="raw", query=None):
             return f"Key: {query} Not Found."
 
     if mode.lower() == "raw":
-        return decode_raw_data(''.join(tokens))
+        return f"Meta-Data: {meta_data}\nRaw-Data: {decode_raw_data(''.join(tokens))}"
     elif mode.lower() == "kvp":
-        return decode_key_value_pairs(key_value_pairs)
+        return f"Meta-Data: {meta_data}\nK-V Pairs: {decode_key_value_pairs(key_value_pairs)}"
     elif mode.lower() == "both":
-        return decode_key_value_pairs(key_value_pairs), decode_raw_data(''.join(tokens))
+        return f"Meta-Data: {meta_data}\nK-V Pairs: {decode_key_value_pairs(key_value_pairs)}\nRaw-Data: {decode_raw_data(''.join(tokens))}"
     else:
         return "Invalid Mode"
 
@@ -98,20 +129,4 @@ def decode_raw_data(data):
 
 
 if __name__ == "__main__":
-    input_file = input("File to process: ").strip()
-    mode = input("Parse (p) or Query (q): ").lower()
-
-    if mode == "p":
-        mode = input("Key-Value Pairs (kvp) or Raw (raw): ").lower()
-        try:
-            print(parse(input_file, mode))
-        except Exception as e:
-            print(e)
-    elif mode == "q":
-        query = input("Query: ")
-        try:
-            print(parse(input_file, query=query))
-        except Exception as e:
-            print(e)
-    else:
-        print("Invalid Mode")
+    mitochondria()
