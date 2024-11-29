@@ -61,7 +61,16 @@ def parse(file, mode="raw", query=None):
                     if stripped_line.startswith("--D"):
                         stripped_line = stripped_line.removeprefix("--").removesuffix(";")
                         key, value = stripped_line.split(":")
-                        meta_data[key.strip()] = value.strip()
+                        key = key.strip()
+                        if "NAME" in key:
+                            key = "Database Name"
+                        elif "VERSION" in key:
+                            key = "Database Version"
+                        elif "DC" in key:
+                            key = "Date Database was Created"
+                        elif "DESC" in key:
+                            key = "Database Description"
+                        meta_data[key] = value
 
                 if kvp_mode:
                     if stripped_line.startswith("--key: #"):
