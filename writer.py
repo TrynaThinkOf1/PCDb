@@ -11,7 +11,7 @@ def mitochondria():
     mode = input("Append (a), Remove (r), or Overwrite (o):")
 
     if mode.lower() == "a":
-        pass
+        append(file_name, (input("Enter token to append (press Enter to append K-V pair): ") or None), (input("Enter key:value to append (press Enter for None): ") or None))
     elif mode.lower() == "r":
         remove(file_name, (input("Enter token to remove (press Enter to remove K-V pair): ") or None), (input("Enter key to remove (press Enter for None): ") or None))
     elif mode.lower() == "o":
@@ -67,6 +67,25 @@ def remove(file, token=None, key=None):
 
     with open(f"DATABASES/{file}.css", 'w') as css:
         css.writelines(modified_lines)
+
+
+def append(file, token=None, key=None):
+    with open(f"DATABASES/{file}.css", 'r') as css:
+        lines = css.readlines()
+
+    current_lines = [line for line in lines]
+    new_lines = []
+
+    if token:
+        new_lines = current_lines
+        new_lines.pop(-1)
+        for i in tokenize(token):
+            new_lines.append(f"  color: #{i};\n")
+        new_lines.append("}")
+
+
+    with open(f"DATABASES/{file}.css", 'w') as css:
+        css.writelines(new_lines)
 
 
 def pairify(key, value):
