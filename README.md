@@ -1,5 +1,3 @@
-## --if this is 90%+ CSS, it's b/c there are lots of lines of data stored in the CSS files--
-
 # PCDb
 
 ## **November 28, 2024**
