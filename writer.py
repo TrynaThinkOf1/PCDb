@@ -8,12 +8,14 @@ meta_data = {}
 
 def mitochondria():
     file_name = input("Enter the file name: ")
-    mode = input("Append (a), Remove (r), or Overwrite (o):")
+    mode = input("Append (a), Remove (d), Replace (r), or Overwrite (o):")
 
     if mode.lower() == "a":
         append(file_name, (input("Enter token to append (press Enter to append K-V pair): ") or None), (input("Enter key:value to append (press Enter for None): ") or None))
-    elif mode.lower() == "r":
+    elif mode.lower() == "d":
         remove(file_name, (input("Enter token to remove (press Enter to remove K-V pair): ") or None), (input("Enter key to remove (press Enter for None): ") or None))
+    elif mode.lower() == "r":
+        replace(file_name, (input("Enter old-token:new-token (press Enter for None): ") or None), (input("Enter old key to replace (press Enter for None): ") or None),  (input("Enter new key:value to replace (press Enter for None): ") or None))
     elif mode.lower() == "o":
         print("Meta-data should be entered as key-value pairs without hex encoding.")
         print("Accepted meta-data includes: D_NAME (Database name), D_VERSION (Database version), D_DC (Date Created), D_DESC (Description)")
@@ -86,6 +88,42 @@ def append(file, token=None, key=None):
 
     with open(f"DATABASES/{file}.css", 'w') as css:
         css.writelines(new_lines)
+
+def replace(file, token=None, old_key=None, new_kv=None):
+    with open(f"DATABASES/{file}.css", 'r') as css:
+        lines = css.readlines()
+        modified_lines = []
+
+        old_to_new_tokens = {}
+
+        if token:
+            old_token, new_token = token.split(":")
+            old_to_new_tokens = {tok: new_token for tok in tokenize(old_token)}
+
+        if old_key and new_kv:
+            new_key = new_kv.split(":")[0]
+            new_value = new_kv.split(":")[1]
+
+        for line in lines:
+            stripped_line = line.strip()
+
+            if "color: #" in stripped_line:
+                token_start = stripped_line.find("#") + 1
+
+                token_value = stripped_line[token_start:token_start + 6]
+
+                if token_value in old_to_new_tokens:
+                    line = f"  color: #{old_to_new_tokens[token_value]};\n"
+
+            if stripped_line == f"--key: #{convert(old_key)};":
+                line = f"  --key: #{convert(new_key)};\n"
+                modified_lines.append(line)
+                line = f"  --value: #{convert(new_value)};\n"
+
+            modified_lines.append(line)
+
+        with open(f"DATABASES/{file}.css", 'w') as css:
+            css.writelines(modified_lines)
 
 
 def pairify(key, value):

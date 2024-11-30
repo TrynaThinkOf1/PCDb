@@ -38,7 +38,7 @@ def parse(file, mode="raw", query=None):
         current_value = ""
 
         # parse
-        for line_num, line in enumerate(lines, start=1):
+        for line in lines:
             stripped_line = line.strip()
 
             if stripped_line.startswith("/*"):
@@ -85,7 +85,6 @@ def parse(file, mode="raw", query=None):
 
                         if current_key:
                             key_value_pairs[current_key] = current_value
-                            line_nums[decode_raw_data(current_key).replace("'", "")] = line_num
                             current_key = ""
                             current_value = ""
 
@@ -100,7 +99,7 @@ def parse(file, mode="raw", query=None):
     if query is not None:
         key_value_pairs = decode_key_value_pairs(key_value_pairs)
         if key_value_pairs.get(query):
-            return f"Key: '{query}'\nValue: '{key_value_pairs[query]}'\nLine: {line_nums[query]}" #Key: {query} Found at line {line_nums[query]} With Value: {key_value_pairs[query]}
+            return f"Key: '{query}'\nValue: '{key_value_pairs[query]}'\n"
         else:
             return f"Key: {query} Not Found."
 
