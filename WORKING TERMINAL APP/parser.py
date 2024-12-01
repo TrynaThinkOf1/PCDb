@@ -1,24 +1,3 @@
-def mitochondria():
-    input_file = input("File to process: ").strip()
-    mode = input("Parse (p) or Query (q): ").lower()
-
-    if mode == "p":
-        mode = input("Key-Value Pairs (kvp) or Raw (raw) or both (both): ").lower()
-        try:
-            print("-----------------------------------------------\n")
-            print(parse(input_file, mode))
-        except Exception as e:
-            print(e)
-    elif mode == "q":
-        query = input("Query: ")
-        try:
-            print("-----------------------------------------------\n")
-            print(parse(input_file, query=query))
-        except Exception as e:
-            print(e)
-    else:
-        print("Invalid Mode")
-
 def parse(file, mode="raw", query=None):
     key_value_pairs = {}
     meta_data = {}
@@ -27,7 +6,7 @@ def parse(file, mode="raw", query=None):
 
     tokens = []
 
-    with open(f"DATABASES/{file}.css", 'r') as css:
+    with open(f"sys_func_main_log()/{file}.css", 'r') as css:
         lines = css.readlines()
         comment = False
         kvp_mode = False
@@ -99,21 +78,18 @@ def parse(file, mode="raw", query=None):
     if query is not None:
         key_value_pairs = decode_key_value_pairs(key_value_pairs)
         if key_value_pairs.get(query):
-            return f"Key: '{query}'\nValue: '{key_value_pairs[query]}'\n"
+            return query, key_value_pairs[query]
         else:
             return f"Key: {query} Not Found."
 
     if mode.lower() == "raw":
-        return f"\n\nMeta-Data: {format(meta_data)}\n\nRaw-Data: \n{decode_raw_data(''.join(tokens))}"
+        return meta_data, decode_raw_data(''.join(tokens))
     elif mode.lower() == "kvp":
-        return f"\n\nMeta-Data: {format(meta_data)}\n\nK-V Pairs: \n{format(decode_key_value_pairs(key_value_pairs))}"
+        return meta_data, decode_key_value_pairs(key_value_pairs)
     elif mode.lower() == "both":
-        return f"\n\nMeta-Data: {format(meta_data)}\n\nK-V Pairs: \n{format(decode_key_value_pairs(key_value_pairs))}\n\nRaw-Data: \n{decode_raw_data(''.join(tokens))}"
+        return meta_data, decode_key_value_pairs(key_value_pairs), decode_raw_data(''.join(tokens))
     else:
         return "Invalid Mode"
-
-def format(data):
-    return '\n'.join([f"{key}: '{value}'" for key, value in data.items()])
 
 def decode_key_value_pairs(dictionary):
     try:
@@ -139,7 +115,3 @@ def decode_raw_data(data):
 
     except Exception as e:
         raise Exception(e)
-
-
-if __name__ == "__main__":
-    mitochondria()

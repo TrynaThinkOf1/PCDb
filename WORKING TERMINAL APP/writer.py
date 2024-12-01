@@ -6,33 +6,8 @@ tokens = []
 
 meta_data = {}
 
-def mitochondria():
-    file_name = input("Enter the file name: ")
-    mode = input("Append (a), Remove (d), Replace (r), or Overwrite (o):")
-
-    if mode.lower() == "a":
-        append(file_name, (input("Enter token to append (press Enter to append K-V pair): ") or None), (input("Enter key:value to append (press Enter for None): ") or None))
-    elif mode.lower() == "d":
-        remove(file_name, (input("Enter token to remove (press Enter to remove K-V pair): ") or None), (input("Enter key to remove (press Enter for None): ") or None))
-    elif mode.lower() == "r":
-        replace(file_name, (input("Enter old-token:new-token (press Enter for None): ") or None), (input("Enter old key to replace (press Enter for None): ") or None),  (input("Enter new key:value to replace (press Enter for None): ") or None))
-    elif mode.lower() == "o":
-        print("Meta-data should be entered as key-value pairs without hex encoding.")
-        print("Accepted meta-data includes: D_NAME (Database name), D_VERSION (Database version), D_DC (Date Created), D_DESC (Description)")
-        print("Example: D_NAME=login_data1; D_VERSION=1.2.3; D_DC=11-29-2024; D_DESC=This database stores usernames.")
-        meta_input = input("Enter metadata (or press Enter for None): ")
-        meta_data = [item.strip() for item in meta_input.split(";") if item.strip()]
-        print("Enter raw data or key-value pairs in the format {key:value}, separating multiple entries with ';'.")
-        data_input = input("Enter the data to store: ")
-        process(data_input)
-        write(file_name, meta_data)
-
-    else:
-        print("Invalid Mode")
-        return
-
 def remove(file, token=None, key=None):
-    with open(f"DATABASES/{file}.css", 'r') as css:
+    with open(f"sys_func_main_log()/{file}.css", 'r') as css:
         lines = css.readlines()
 
     modified_lines = []
@@ -67,30 +42,52 @@ def remove(file, token=None, key=None):
         modified_lines.append(line)
         index += 1
 
-    with open(f"DATABASES/{file}.css", 'w') as css:
+    with open(f"sys_func_main_log()/{file}.css", 'w') as css:
         css.writelines(modified_lines)
 
 
-def append(file, token=None, key=None):
-    with open(f"DATABASES/{file}.css", 'r') as css:
+def append(file, token=None, kv=None):
+    with open(f"sys_func_main_log()/{file}.css", 'r') as css:
         lines = css.readlines()
 
-    current_lines = [line for line in lines]
     new_lines = []
+    found = False
 
     if token:
-        new_lines = current_lines
-        new_lines.pop(-1)
-        for i in tokenize(token):
-            new_lines.append(f"  color: #{i};\n")
-        new_lines.append("}")
+        for line in lines:
+            new_lines.append(line)
+            if ".raw_data {" in line and not found:
+                found = True
 
+                for i in tokenize(token):
+                    new_lines.append(f"  color: #{i};\n")
 
-    with open(f"DATABASES/{file}.css", 'w') as css:
+                if "}" not in lines[lines.index(line) + 1:]:
+                    new_lines.append("}\n")
+                continue
+
+    elif kv:
+        for line in lines:
+            new_lines.append(line)
+            if ".key_value_pairs {" in line and not found:
+                found = True
+
+                key, value = kv.split(":")
+                key = convert(key.strip())
+                value = convert(value.strip())
+                new_lines.append(f"  --key: #{key}; \n  --value: #{value};\n")
+
+                if "}" not in lines[lines.index(line) + 1:]:
+                    new_lines.append("}\n")
+                continue
+
+    new_lines += [line for line in lines if line not in new_lines]
+
+    with open(f"sys_func_main_log()/{file}.css", 'w') as css:
         css.writelines(new_lines)
 
 def replace(file, token=None, old_key=None, new_kv=None):
-    with open(f"DATABASES/{file}.css", 'r') as css:
+    with open(f"sys_func_main_log()/{file}.css", 'r') as css:
         lines = css.readlines()
         modified_lines = []
 
@@ -122,7 +119,7 @@ def replace(file, token=None, old_key=None, new_kv=None):
 
             modified_lines.append(line)
 
-        with open(f"DATABASES/{file}.css", 'w') as css:
+        with open(f"sys_func_main_log()/{file}.css", 'w') as css:
             css.writelines(modified_lines)
 
 
@@ -171,7 +168,7 @@ def process(data):
 
 
 def write(file, meta_data: str = None):
-    with open(f"DATABASES/{file}.css", 'w') as css:
+    with open(f"sys_func_main_log()/{file}.css", 'w') as css:
         if meta_data is not None:
             css.write(".META_DATA {\n")
             meta_data = {k: v for k, v in (item.split("=") for item in meta_data if "=" in item)}
@@ -186,7 +183,3 @@ def write(file, meta_data: str = None):
         for token in tokens:
             css.write(f"  color: #{token};\n")
         css.write("}")
-
-
-if __name__ == "__main__":
-    mitochondria()
